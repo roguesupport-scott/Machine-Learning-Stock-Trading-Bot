@@ -33,7 +33,7 @@ def buy():
                         )
 
 def sell():
-    # Selling Positions on Target Price or Unexpected Loss of 7% or More
+    # Selling Positions on Target Price or Unexpected Loss of 7.5% or More
     for position in my_positions:
         # Forecasting with Updated Data
         stock_history = stock_price_history(position)
@@ -50,7 +50,7 @@ def sell():
                         qty=qty_bought,
                         side='sell',
                         type='market',
-                        time_in_force='cls'
+                        time_in_force='gtc'
                         )
         # Sell Stop Loss On Uptrend or Little Loss
         else:
@@ -62,7 +62,7 @@ def sell():
                     type='stop_limit',
                     limit_price=target_price,
                     stop_price=stop_price,
-                    time_in_force='cls'
+                    time_in_force='gtc'
                     )
 
 
