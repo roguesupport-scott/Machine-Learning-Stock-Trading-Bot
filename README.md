@@ -1,7 +1,7 @@
 # Machine-Learning-Stock-Trading-Bot
 Objective: C++ day trading bots are such ubiquitous projects. 
 Swing trading bots are not as common, especially one that performs both fundamental and technical trading methodology. 
-This bot trades in the interval of 1-20 business days. The bot is designed to ran once a day.
+This bot trades in the interval of 1-20 business days. The bot is designed to run once a day.
 Task Scheduler will do the job for automated python script runs.
 
 Mechanics: Implements sentiment analysis on equity related "twits" to identify upward trending stocks 
