@@ -42,17 +42,35 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
           *for each candidate stock, the bot avoids buying stocks already in position, calculates number of shares to buy
           qty_desired = round(((target_price - current_price) / current_price) * buying_power), and checks if the portfolio
           can afford to make an order
-    
-    2. def sell()
+          
+   2. def sell()
        --> Uses the same function as def buy() to update target pricing
        --> If position has more than 7.5% loss, the bot orders an immediate sell order on market price
-       --> Else, the bot pushes stop/limit order: limit order = target price     stop limit = -7.5% of purchased price
+       --> Else, the bot pushes stop/limit order: limit order = target price   stop limit = -7.5% of purchased price
+
+    3. if __name__ == '__main__'
+         --> Links to Alpaca Paper Trading
+         --> Updates Account Status and Positions Held
+         --> Run def sell() first to avoid day trading then def buy ()
+         --> After pushing orders, the bot will close. 
+         --> Task Scheduler will run the script next business day
+         
+          # Account Status Review
+          api = tradeapi.REST(base_url=ALPACA_BASE_URL, key_id=ALPACA_API_KEY, secret_key=ALPACA_SECRET_KEY)
+          account = api.get_account()
+          buying_power = float(account.buying_power)
+          my_positions = []
+          if len(api.list_positions()) != 0:
+              for i in np.arange(len(api.list_positions())):
+                  my_positions.append(api.list_positions()[i].symbol)
+
+          # Executing Orders
+          sell()
+          buy()
+          sys.exit()
        
-    3. if __name__ == '__main__':
-       --> Links to Alpaca Paper Trading
-       --> Updates Account Status and Positions Held
-       --> Run def sell() first to avoid day trading then def buy ()
-       --> After pushing orders, the bot will close. 
-       --> Task Scheduler will run the script next business day
+   
+    
+    
           
       
