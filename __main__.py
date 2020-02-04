@@ -18,22 +18,23 @@ def buy():
             # Predicting Future Stock Price with Machine Learning
             target_price = float(random_forest_forecast(stock_history))
             # Determining Num of Shares to Buy
-            if buying_power < 300:
-                qty_desired = round((buying_power / current_price) - 0.5)
+            if buying_power < 200:
+                qty_desired = int((buying_power/current_price) / len(candidate_stocks))
             else:
-                qty_desired = round(((target_price - current_price) / current_price) * buying_power)
+                qty_desired = int(((target_price - current_price) / current_price) * buying_power)
         # Submitting Buy Order
-            if float(account.buying_power) > target_price > current_price:
-                return api.submit_order(
-                        symbol=ticker,
-                        qty=qty_desired,
-                        side='buy',
-                        type='market',
-                        time_in_force='gtc'
-                        )
+            if buying_power > target_price > current_price:
+                api.submit_order(
+                    symbol=ticker,
+                    qty=qty_desired,
+                    side='buy',
+                    type='market',
+                    time_in_force='gtc'
+                    )
+    return print('Buy Orders Sent')
 
 def sell():
-    # Selling Positions on Target Price or Unexpected Loss of 7.5% or More
+    # Selling Positions on Newly Updated Target Price or Unexpected Loss of 7.5% or More
     for position in my_positions:
         # Forecasting with Updated Data
         stock_history = stock_price_history(position)
@@ -45,25 +46,26 @@ def sell():
 
         # Sell on 7.5% Loss or More
         if price_change < -0.075:
-            return api.submit_order(
-                        symbol=position,
-                        qty=qty_bought,
-                        side='sell',
-                        type='market',
-                        time_in_force='gtc'
-                        )
-        # Sell Stop Loss On Uptrend or Little Loss
+            api.submit_order(
+                symbol=position,
+                qty=qty_bought,
+                side='sell',
+                type='market',
+                time_in_force='gtc'
+            )
+        # Selling on Uptrend or Little Loss
         else:
-            stop_price = round(current_price * (1 - (-0.075 - price_change)), 4)
-            return api.submit_order(
-                    symbol=position,
-                    qty=qty_bought,
-                    side='sell',
-                    type='stop_limit',
-                    limit_price=target_price,
-                    stop_price=stop_price,
-                    time_in_force='gtc'
-                    )
+            stop_price = round(current_price * 0.925, 4)
+            api.submit_order(
+                symbol=position,
+                qty=qty_bought,
+                side='sell',
+                type='stop_limit',
+                limit_price=target_price,
+                stop_price=stop_price,
+                time_in_force='gtc'
+            )
+    return print('Sell Orders Sent')
 
 
 if __name__ == '__main__':
@@ -75,6 +77,7 @@ if __name__ == '__main__':
     if len(api.list_positions()) != 0:
         for i in np.arange(len(api.list_positions())):
             my_positions.append(api.list_positions()[i].symbol)
+
     # Executing Orders
     sell()
     buy()
