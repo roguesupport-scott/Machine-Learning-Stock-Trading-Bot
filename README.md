@@ -1,12 +1,14 @@
 # Machine-Learning-Stock-Trading-Bot
-Objective: Day trading bots are ubiquitous projects. 
+Objective: 
+Day trading bots are ubiquitous projects. 
 Swing trading bots are not as common, especially one that performs both fundamental and technical trading methodology with machine learning implementation. Staying true to its swing trading objective, the program is only designed to execute selling and buying once per day. 
 
-Mechanics: Implements sentiment analysis on equity related "twits" to identify optimistically trending stocks
+Mechanics: 
+Implements sentiment analysis on equity related "twits" to identify optimistically trending stocks
 Performs data collecting and scrubbing of 3 months worth of price history, press release, sentiment polarity, and subjectivity data
 Predicts and calculates target price through machine learning random forest model for the next 20 business days  
 
-a.) config.py -- Storage of all api keys: ALPHA VANTAGE, NEWSAPI
+a.) config.py -- Storage of all api keys: ALPHA VANTAGE, NEWSAPI, ALPACA
 
 b.) forecast_library.py -- Data scrubbing and machine learning function
   
@@ -56,7 +58,6 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
          --> Run def buy () 
          --> Task Scheduler will run the script next business day
          
-          # Account Status Review
           api = tradeapi.REST(base_url=ALPACA_BASE_URL, key_id=ALPACA_API_KEY, secret_key=ALPACA_SECRET_KEY)
           account = api.get_account()
           buying_power = float(account.buying_power)
@@ -64,8 +65,6 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
           if len(api.list_positions()) != 0:
               for i in np.arange(len(api.list_positions())):
                   my_positions.append(api.list_positions()[i].symbol)
-
-          # Executing Orders
           sell()
           buy()
           sys.exit()
