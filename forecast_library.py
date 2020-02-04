@@ -48,12 +48,13 @@ def stock_price_history(ticker):
 
     # Adding "Press Release" and "Sentiment Analysis" Data as Columns in the DataFrame
     headlines = {}
-    if list(news_data.values())[1] > 0:
+    news_content = list(news_data.values())
+    if news_content[1] > 0:
         # Handpicking "News Description" Data within Clustered List and Dict
-        for i in np.arange(len((list(news_data.values())[2]))):
+        for i in np.arange(len(news_content[2])):
             # Identifying "Published Date" within Clustered List/Dict
-            date = list(news_data.values())[2][i]['publishedAt'].split('T')[0]
-            headlines[date] = list(news_data.values())[2][i]['description']
+            date = news_content[2][i]['publishedAt'].split('T')[0]
+            headlines[date] = news_content[2][i]['description']
         # Appending News Data to Main DataFrame on Corresponding Dates
         for key in headlines.keys():
             df.loc[df['date'] == key, 'related news'] = 1
