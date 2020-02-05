@@ -8,10 +8,10 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 # Importing StockTwits Data from Automated Stock Alerting Accounts
-def importing_twitdata(id1, id2):
+def importing_twitdata(account1, account2):
     # Importing and Combining Data from 2 Accounts
-    r = requests.get('https://api.stocktwits.com/api/2/streams/user/'+id1+'.json')
-    r2 = requests.get('https://api.stocktwits.com/api/2/streams/user/'+id2+'.json')
+    r = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account1))
+    r2 = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account2))
     twit_data = (r.text + r2.text).split('body')
     # Handpicking Twits that Refer Stock Tickers
     for line in twit_data:
@@ -24,42 +24,45 @@ def importing_twitdata(id1, id2):
 
 # Using Sentiment Analysis to Identify Optimistic Stocks
 def twit_sentiment_analyzer(raw_data):
-    candidate_list = []
+    candidate_list = set()
     for twit_message in raw_data:
         # Identifying Optimistic Twits
         if TextBlob(twit_message).sentiment.polarity > 0.4:
             # Extracting Stock Ticker Name from Clustered Data
             for ticker in twit_message.split(' '):
                 if '$' in ticker and ticker[1:] not in candidate_list and len(ticker) in np.arange(3,6):
-                    candidate_list.append(ticker[1:].upper())
+                    candidate_list.add(ticker[1:].upper())
     return candidate_list
 
 
 # Scrubbing Historical Stock Data: Readily Use for Machine Learning
-def stock_price_history(ticker):
+def pulling_price_history(ticker):
     # Importing Stock Data and Relevant News Headlines
-    stock_price_data = requests.get('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='+ticker+'&apikey='+ALPHAV_API_KEY+'demo&datatype=csv').text.splitlines()[1:]
+    stock_price_data = requests.get(('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={}&apikey='
+                                     '{}demo&datatype=csv').format(ticker, ALPHAV_API_KEY)).text.splitlines()[1:]
     news_data = NEWS_API.get_everything(q=(ticker+' stock'), language='en')
 
     # Organizing Data into pd.DataFrame
     df = pd.DataFrame(pd.DataFrame(stock_price_data)[0].str.split(',', n=6, expand=True))
     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
-    df['close_price_change_%'] = round((df['close'].astype(float) - df['open'].astype(float))/df['open'].astype(float) * 100, 2)
+    df['close_price_change_%'] = round((df['close'].astype(float) - df['open'].astype(float))
+                                       /df['open'].astype(float) * 100, 2)
 
     # Adding "Press Release" and "Sentiment Analysis" Data as Columns in the DataFrame
     headlines = {}
     news_content = list(news_data.values())
     if news_content[1] > 0:
         # Handpicking "News Description" Data within Clustered List and Dict
-        for i in np.arange(len(news_content[2])):
+        for i in range(len(news_content[2])):
             # Identifying "Published Date" within Clustered List/Dict
             date = news_content[2][i]['publishedAt'].split('T')[0]
             headlines[date] = news_content[2][i]['description']
         # Appending News Data to Main DataFrame on Corresponding Dates
         for key in headlines.keys():
+            news_analysis = TextBlob(headlines[key]).sentiment
             df.loc[df['date'] == key, 'related news'] = 1
-            df.loc[df['date'] == key, 'news_sentiment'] = TextBlob(headlines[key]).sentiment.polarity
-            df.loc[df['date'] == key, 'news_subjectivity'] = TextBlob(headlines[key]).sentiment.subjectivity
+            df.loc[df['date'] == key, 'news_polarity'] = news_analysis.polarity
+            df.loc[df['date'] == key, 'news_subjectivity'] = news_analysis.subjectivity
 
     # Data Type Formatting
     df['date'] = pd.to_datetime(df['date'])
@@ -80,7 +83,7 @@ def random_forest_forecast(data):
 
     # Technical Analysis: (Target Price = Maximum Forecast Price of the Next 20 Business Days * Accuracy Score)
     confidence_level = forest.score(X_test,y_test)
-    prediction = round(forest.predict(np.array(X.head(20))).max() * confidence_level,4)
+    prediction = round(forest.predict(np.array(X.head(20))).max() * confidence_level, 4)
     return prediction
 
 
