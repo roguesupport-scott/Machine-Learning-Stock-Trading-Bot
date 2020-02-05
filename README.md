@@ -20,7 +20,7 @@ b.) forecast_library.py -- Data scrubbing and machine learning function
       --> Uses TextBlob to determine the twits sentiment on particular stocks
       --> Disregards any twit with polarity lower than 0.4 (Polarity ranges from (negative) -1 to 1 (positive))
       
-  3. def stock_price_history(ticker)
+  3. def pulling_price_history(ticker)
       --> Pulls the latest 3 months data of stock price history from alphavantage and puts into a DataFrame
       --> Supplements DataFrame by adding press release dates and news sentimentality and subjectivity to the DataFrame 
       --> NewsAPI data was stored in clustered dictionary and list; thus it was hectic handpicking appropriate sections of data
@@ -51,24 +51,30 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
             limit order = newly updated target price  
             stop limit = -7.5% of current price
 
-    3. if __name__ == '__main__'
-         --> Links to Alpaca Paper Trading
-         --> Updates Account Status and Positions Held
-         --> Run def sell() first to avoid day trading tagging
-         --> Run def buy () 
-         --> Task Scheduler will run the script next business day
-         
-          api = tradeapi.REST(base_url=ALPACA_BASE_URL, key_id=ALPACA_API_KEY, secret_key=ALPACA_SECRET_KEY)
-          account = api.get_account()
-          buying_power = float(account.buying_power)
-          my_positions = []
-          if len(api.list_positions()) != 0:
-              for i in np.arange(len(api.list_positions())):
-                  my_positions.append(api.list_positions()[i].symbol)
+    3. if __name__ == '__main__':
+          # Account Status Review
+          alpaca_api = tradeapi.REST(base_url=ALPACA_BASE_URL,
+                              key_id=ALPACA_API_KEY,
+                              secret_key=ALPACA_SECRET_KEY
+                              )
+          # Liquidity
+          buying_power = float(alpaca_api.get_account().buying_power)
+          # Positions Held
+          my_positions = set()
+          open_positions = alpaca_api.list_positions()
+          if len(open_positions) > 0:
+              for index in range(len(open_positions)):
+                  my_positions.add(open_positions[index].symbol)
+          # Orders Sent
+          my_orders = set()
+          open_orders = alpaca_api.list_orders(status='open')
+          if len(open_orders) > 0:
+             for index in range(len(open_orders)):
+                my_orders.add(open_orders[index].symbol)
+          # Executing Sell & Buy Orders
           sell()
           buy()
           sys.exit()
-       
    
     
     
