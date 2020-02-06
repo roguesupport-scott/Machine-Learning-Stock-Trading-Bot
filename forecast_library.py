@@ -6,14 +6,13 @@ from textblob import TextBlob
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
-
 # Importing StockTwits Data from Automated Stock Alerting Accounts
 def importing_twitdata(account1, account2):
     # Importing and Combining Data from 2 Accounts
     r = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account1))
     r2 = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account2))
     twit_data = (r.text + r2.text).split('body')
-    # Handpicking Twits that Refer Stock Tickers
+    # Handpicking Twits that Literally Mention Tickers
     for line in twit_data:
         if '$' in line:
             twit_data[twit_data.index(line)] = line.split('created_at')[0].strip('\":\"')
@@ -21,19 +20,17 @@ def importing_twitdata(account1, account2):
             twit_data.remove(line)
     return twit_data
 
-
 # Using Sentiment Analysis to Identify Optimistic Stocks
-def twit_sentiment_analyzer(raw_data):
+def twit_sentiment_analyzer(twit_data):
     candidate_list = set()
-    for twit_message in raw_data:
-        # Identifying Optimistic Twits
+    for twit_message in twit_data:
+        # Sentiment Analysis: 0.4 or Higher Polarity --> Optimistic
         if TextBlob(twit_message).sentiment.polarity > 0.4:
             # Extracting Stock Ticker Name from Clustered Data
-            for ticker in twit_message.split(' '):
-                if '$' in ticker and ticker[1:] not in candidate_list and len(ticker) in np.arange(3,6):
-                    candidate_list.add(ticker[1:].upper())
+            for word in twit_message.split(' '):
+                if '$' in word and word[1:] not in candidate_list and len(word) in np.arange(2, 6):
+                    candidate_list.add(word[1:].upper())
     return candidate_list
-
 
 # Scrubbing Historical Stock Data: Readily Use for Machine Learning
 def pulling_price_history(ticker):
@@ -52,17 +49,17 @@ def pulling_price_history(ticker):
     headlines = {}
     news_content = list(news_data.values())
     if news_content[1] > 0:
-        # Handpicking "News Description" Data within Clustered List and Dict
-        for i in range(len(news_content[2])):
+        # Handpicking "News Description" Data within Clustered List and Dict and Storing in "Headlines" Dictionary
+        for index in range(len(news_content[2])):
             # Identifying "Published Date" within Clustered List/Dict
-            date = news_content[2][i]['publishedAt'].split('T')[0]
-            headlines[date] = news_content[2][i]['description']
+            date = news_content[2][index]['publishedAt'].split('T')[0]
+            headlines[date] = news_content[2][index]['description']
         # Appending News Data to Main DataFrame on Corresponding Dates
-        for key in headlines.keys():
-            news_analysis = TextBlob(headlines[key]).sentiment
-            df.loc[df['date'] == key, 'related news'] = 1
-            df.loc[df['date'] == key, 'news_polarity'] = news_analysis.polarity
-            df.loc[df['date'] == key, 'news_subjectivity'] = news_analysis.subjectivity
+        for pr_date in headlines.keys():
+            news_analysis = TextBlob(headlines[pr_date]).sentiment
+            df.loc[df['date'] == pr_date, 'related news'] = 1
+            df.loc[df['date'] == pr_date, 'news_polarity'] = news_analysis.polarity
+            df.loc[df['date'] == pr_date, 'news_subjectivity'] = news_analysis.subjectivity
 
     # Data Type Formatting
     df['date'] = pd.to_datetime(df['date'])
@@ -70,7 +67,6 @@ def pulling_price_history(ticker):
     df[['open', 'high', 'low', 'close', 'volume']] = df[['open', 'high', 'low', 'close', 'volume']].apply(pd.to_numeric, errors='coerce')
     df.fillna(0, inplace=True)
     return df
-
 
 # Forecasting Price with Machine Learning Random Forest Regressor
 def random_forest_forecast(data):
@@ -81,7 +77,7 @@ def random_forest_forecast(data):
     forest = RandomForestRegressor(n_estimators=15)
     forest.fit(X_train, y_train)
 
-    # Technical Analysis: (Target Price = Maximum Forecast Price of the Next 20 Business Days * Accuracy Score)
+    # Substitute of Technical Analysis: (Target Price = Maximum Forecast Price of the Next 20 Business Days * Accuracy Score)
     confidence_level = forest.score(X_test,y_test)
     prediction = round(forest.predict(np.array(X.head(20))).max() * confidence_level, 4)
     return prediction
