@@ -4,9 +4,9 @@ Day trading bots are ubiquitous projects.
 Swing trading bots are not as common, especially one that performs both fundamental and technical trading methodology with machine learning implementation. Staying true to its swing trading objective, the program is only designed to execute selling and buying once per day. 
 
 Mechanics: 
-1. Implements sentiment analysis on equity related "twits" to identify optimistically trending stocks
-2. Performs data collecting and scrubbing of 3 months worth of price history, press release, sentiment polarity, and subjectivity data
-3. Predicts and calculates target price through machine learning random forest model for the next 20 business days  
+--> Implements sentiment analysis on equity related "twits" to identify optimistically trending stocks
+--> Performs data collecting and scrubbing of 3 months worth of price history, press release, sentiment polarity, and subjectivity data
+--> Predicts and calculates target price through machine learning random forest model for the next 20 business days  
 
 a.) config.py -- Storage of all api keys: ALPHA VANTAGE, NEWSAPI, ALPACA
 
@@ -14,7 +14,7 @@ b.) forecast_library.py -- Data scrubbing and machine learning function
   
   1. def importing_twitdata(id1, id2) 
       --> Imports stocktwit data from 2 different automated accounts that posts daily trending stocks 
-          Data is scrubbed by deleting twits that does not literally contain the ticker symbol of a stock
+      --> Data is scrubbed by deleting twits that does not literally contain the ticker symbol of a stock
   
   2. def twit_sentiment_analyzer(raw_data) 
       --> Uses TextBlob to determine the twits sentiment on particular stocks
@@ -37,9 +37,9 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
    
    1. def buy()
       --> Executes created functions in forecast_library.py in the following order:
-          *def importing_twitdata(id1, id2) 
-          *def twit_sentiment_analyzer(raw_data)
-          *for each candidate stock, the bot avoids buying stocks already in position, calculates number of shares to buy
+      *** def importing_twitdata(id1, id2) 
+      *** def twit_sentiment_analyzer(raw_data)
+      *** for each candidate stock, the bot avoids buying stocks already in position, calculates number of shares to buy
           qty_desired = round(((target_price - current_price) / current_price) * buying_power), and checks if the portfolio
           can afford to make an order
           
