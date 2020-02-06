@@ -48,7 +48,7 @@ def pulling_price_history(ticker):
     df['close_price_change_%'] = round((df['close'].astype(float) - df['open'].astype(float))
                                        /df['open'].astype(float) * 100, 2)
 
-    # Adding "Press Release" and "Sentiment Analysis" Data as Columns in the DataFrame
+    # Adding "Press Release" and "Sentiment Analysis" Data as Columns to the DataFrame
     headlines = {}
     news_content = list(news_data.values())
     if news_content[1] > 0:

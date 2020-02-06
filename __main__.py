@@ -42,8 +42,8 @@ def sell():
         price_change = float(alpaca_api.get_position(position).unrealized_plpc)
         qty_bought = float(alpaca_api.get_position(position).qty)
 
-        # Sell on 7.5% Loss or More
-        if price_change < -0.075:
+        # Sell on 7.5% Loss or 35% Profit (due to unexpected spikes)
+        if price_change < -0.075 or price_change > 0.35:
             alpaca_api.submit_order(
                 symbol=position,
                 qty=qty_bought,
@@ -51,7 +51,7 @@ def sell():
                 type='market',
                 time_in_force='gtc'
             )
-            # Selling on Uptrend or Little Loss
+        # Selling on Target Price or Acceptable Loss
         else:
             stop_price = round(current_price * 0.925, 4)
             alpaca_api.submit_order(
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     if len(open_positions) > 0:
         for index in range(len(open_positions)):
             my_positions.add(open_positions[index].symbol)
-    # Orders Sent
+    # Orders Inplace
     my_orders = set()
     open_orders = alpaca_api.list_orders(status='open')
     if len(open_orders) > 0:
