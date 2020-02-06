@@ -39,17 +39,17 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
       --> Executes created functions in forecast_library.py in the following order:
       *** def importing_twitdata(id1, id2) 
       *** def twit_sentiment_analyzer(raw_data)
-      *** for each candidate stock, the bot avoids buying stocks already in position, calculates number of shares to buy
-          qty_desired = round(((target_price - current_price) / current_price) * buying_power), and checks if the portfolio
-          can afford to make an order
+      *** For each candidate stock, the bot avoids buying stocks already in position, calculates number of shares to buy
+      *** qty_desired = round(((target_price - current_price) / current_price) * buying_power)
+      *** Checks if the portfolio can afford to make an order
           
    2. def sell()
        --> Selling positions held from the previous night
        --> Uses the same function as def buy() to update target price with new data available to increase accuracy
        --> If position has more than 7.5% loss, the bot orders an immediate sell order on market price
        --> Else, the bot pushes stop/limit order: 
-            limit order = newly updated target price  
-            stop limit = -7.5% of current price
+           limit order = newly updated target price  
+           stop limit = -7.5% of current price
 
     3. if __name__ == '__main__':
     # Account Status Review
