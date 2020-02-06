@@ -4,9 +4,9 @@ Day trading bots are ubiquitous projects.
 Swing trading bots are not as common, especially one that performs both fundamental and technical trading methodology with machine learning implementation. Staying true to its swing trading objective, the program is only designed to execute selling and buying once per day. 
 
 Mechanics: 
-Implements sentiment analysis on equity related "twits" to identify optimistically trending stocks
-Performs data collecting and scrubbing of 3 months worth of price history, press release, sentiment polarity, and subjectivity data
-Predicts and calculates target price through machine learning random forest model for the next 20 business days  
+1. Implements sentiment analysis on equity related "twits" to identify optimistically trending stocks
+2. Performs data collecting and scrubbing of 3 months worth of price history, press release, sentiment polarity, and subjectivity data
+3. Predicts and calculates target price through machine learning random forest model for the next 20 business days  
 
 a.) config.py -- Storage of all api keys: ALPHA VANTAGE, NEWSAPI, ALPACA
 
