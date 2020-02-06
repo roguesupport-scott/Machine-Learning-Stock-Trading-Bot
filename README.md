@@ -52,31 +52,23 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
             stop limit = -7.5% of current price
 
     3. if __name__ == '__main__':
-          # Account Status Review
-          alpaca_api = tradeapi.REST(base_url=ALPACA_BASE_URL,
-                              key_id=ALPACA_API_KEY,
-                              secret_key=ALPACA_SECRET_KEY
-                              )
-          # Liquidity
-          buying_power = float(alpaca_api.get_account().buying_power)
-          # Positions Held
-          my_positions = set()
-          open_positions = alpaca_api.list_positions()
-          if len(open_positions) > 0:
-              for index in range(len(open_positions)):
-                  my_positions.add(open_positions[index].symbol)
-          # Orders Sent
-          my_orders = set()
-          open_orders = alpaca_api.list_orders(status='open')
-          if len(open_orders) > 0:
-             for index in range(len(open_orders)):
-                my_orders.add(open_orders[index].symbol)
-          # Executing Sell & Buy Orders
-          sell()
-          buy()
-          sys.exit()
-   
-    
-    
-          
-      
+    # Account Status Review
+    alpaca_api = tradeapi.REST(base_url=ALPACA_BASE_URL,
+                        key_id=ALPACA_API_KEY,
+                        secret_key=ALPACA_SECRET_KEY
+                        )
+    # Liquidity
+    buying_power = float(alpaca_api.get_account().buying_power)
+
+    # Current Holding Positions
+    open_positions = alpaca_api.list_positions()
+    my_positions = set(map(lambda index: open_positions[index].symbol, range(len(open_positions))))
+
+    # Open Orders
+    open_orders = alpaca_api.list_orders(status='open')
+    my_orders = set(map(lambda index: open_orders[index].symbol, range(len(open_orders))))
+
+    # Executing Sell & Buy Orders
+    sell()
+    buy()
+    sys.exit()
