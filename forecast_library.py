@@ -42,10 +42,10 @@ def pulling_price_history(ticker):
     # Organizing Data into pd.DataFrame
     df = pd.DataFrame(pd.DataFrame(stock_price_data)[0].str.split(',', n=6, expand=True))
     df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
-    df['close_price_change_%'] = round((df['close'].astype(float) - df['open'].astype(float))
+    df['close_price_%change'] = round((df['close'].astype(float) - df['open'].astype(float))
                                        /df['open'].astype(float) * 100, 2)
 
-    # Adding "Press Release" and "Sentiment Analysis" Data as Columns to the DataFrame
+    # Adding "Press Release" and its "Sentiment Analysis" Data as DataFrame Columns
     headlines = {}
     news_content = list(news_data.values())
     if news_content[1] > 0:
