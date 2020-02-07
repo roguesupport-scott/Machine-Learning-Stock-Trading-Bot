@@ -46,10 +46,10 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
    2. def sell()
        --> Selling positions held from the previous night
        --> Uses the same function as def buy() to update target price with new data available to increase accuracy
-       --> If position has more than 7.5% loss, the bot orders an immediate sell order on market price
+       --> If position has more than -7.5% loss or Unrealized Gain > Target Price, the bot orders an immediate sell order on market price
        --> Else, the bot pushes stop/limit order: 
            limit order = newly updated target price  
-           stop limit = -7.5% of current price
+           stop limit = -7.5% of purchased price
 
     3. if __name__ == '__main__':
     # Account Status Review
