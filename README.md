@@ -30,7 +30,7 @@ b.) forecast_library.py -- Data scrubbing and machine learning function
       --> Chose the random forest regressor model for its powerful prediction capability on short term forecasts and limited data
       --> Lacking data (merely 3 months worth of stock price history) discouraged implementing other model (free open data was used)
       --> Random forest regressor had the highest score
-      --> Train 80% of the data and tested 20%
+      --> Train 80% of the data and test 20%
       --> Predicts the stock's price for the next 20 business days and return the maximum price multiplied by it's confidence level
          
 c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
@@ -42,10 +42,9 @@ c.) __main__.py -- Executing Trade on Alpaca (https://alpaca.markets/)
       *** For each candidate stock, the bot avoids buying stocks already in position, calculates number of shares to buy
       *** qty_desired = round(((target_price - current_price) / current_price) * buying_power)
       *** Checks if the portfolio can afford to make an order
+      *** Store buy history and target prices in a text file.
           
    2. def sell()
-       --> Selling positions held from the previous night
-       --> Uses the same function as def buy() to update target price with new data available to increase accuracy
        --> If position has more than -7.5% loss or Unrealized Gain > Target Price, the bot orders an immediate sell order on market price
        --> Else, the bot pushes stop/limit order: 
            limit order = newly updated target price  
