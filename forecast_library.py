@@ -54,7 +54,7 @@ def pulling_price_history(ticker):
             headlines[date] = news_content[2][index]['description']
         # Appending News Data to Main DataFrame on Corresponding Dates
         for pr_date in headlines.keys():
-            news_analysis = TextBlob(headlines[pr_date]).sentiment
+            news_analysis = TextBlob(str(headlines[pr_date])).sentiment
             df.loc[df['date'] == pr_date, 'related news'] = 1
             df.loc[df['date'] == pr_date, 'news_polarity'] = news_analysis.polarity
             df.loc[df['date'] == pr_date, 'news_subjectivity'] = news_analysis.subjectivity

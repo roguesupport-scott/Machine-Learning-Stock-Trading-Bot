@@ -20,10 +20,10 @@ def buy():
             # Predicting Future Stock Price with Machine Learning Random Forest Regressor Model
             target_price = float(random_forest_forecast(stock_history))
             # Determining Num of Shares to Buy
-            if buying_power < 350:
-                qty_desired = int((buying_power/current_price) / len(candidate_stocks.difference(my_positions)))-1
+            if buying_power > 200.00:
+                qty_desired = int(round(((target_price - current_price) / current_price) * buying_power)) - 1
             else:
-                qty_desired = int(((target_price - current_price) / current_price) * buying_power)
+                qty_desired = int((buying_power/current_price)) - 1
             # Submitting Affordable Buy Order on Market Price
             if buying_power >= (target_price * qty_desired) > (current_price * qty_desired) and qty_desired > 0:
                 alpaca_api.submit_order(
@@ -35,6 +35,7 @@ def buy():
                     )
                 # Save Target Price on a Separate Text File
                 f.write(ticker + " " + str(target_price) + "\n")
+        # Eliminating Human Error and Probability Error in Collected Twit Data
         except ValueError:
             pass
     f.close()
@@ -46,31 +47,33 @@ def sell():
     f = open('target_price_list.txt', 'r+')
     if os.stat('target_price_list.txt').st_size != 0:
         f_content = f.readlines()
-        df = pd.DataFrame({'ticker': f_content}).ticker.str.split(expand=True)
+        df = pd.DataFrame({'ticker': f_content}).ticker.str.split(" ", expand=True)
         # Selling Positions that Does Not Have Pending Selling Orders
         for position in my_positions.difference(my_orders):
-            # Importing Position Data
-            position_api = alpaca_api.get_position(position)
-            price_change = float(position_api.unrealized_plpc)
-            current_price = float(position_api.current_price)
-            qty_bought = float(position_api.qty)
-            target_price = df.loc[df[0] == position, 1].astype(float).values[0]
-            target_percent_change = round(((target_price - current_price) / current_price), 2)
-            # Sell on 7.5% Loss, Inverted Targeted Percent Loss, or Targeted Profit R
-            if price_change <= (target_percent_change * -1) or price_change <= -0.075 or current_price >= target_price:
-                alpaca_api.submit_order(
-                    symbol=position,
-                    qty=qty_bought,
-                    side='sell',
-                    type='market',
-                    time_in_force='gtc'
-                )
-                # Omitting Sold Position Data from 'target_price_list.txt'
-                f.seek(0)
-                for line in f_content:
-                    if str(position) not in line:
-                        f.write(line)
-                f.truncate()
+            try:
+                # Importing Position Data
+                position_api = alpaca_api.get_position(position)
+                price_change = float(position_api.unrealized_plpc)
+                current_price = float(position_api.current_price)
+                qty_bought = float(position_api.qty)
+                target_price = float(df.loc[df[0] == str(position), 1].values[0][:6])
+                # Sell on 7.5% Loss, Inverted Targeted Percent Loss, or Targeted Profit
+                if price_change <= -0.075 or current_price >= target_price:
+                    alpaca_api.submit_order(
+                        symbol=position,
+                        qty=qty_bought,
+                        side='sell',
+                        type='market',
+                        time_in_force='gtc'
+                    )
+            except IndexError:
+                pass
+            # Omitting Sold Position Data from 'target_price_list.txt'
+            f.seek(0, 0)
+            for line in f_content:
+                if str(position).lower() not in line.lower().split(" "):
+                    f.write(line)
+            f.truncate()
     # Closing Text File
     f.close()
     return print('Sell Orders Sent')
