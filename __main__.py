@@ -7,7 +7,7 @@ import sys
 
 def buy():
     # Importing Twit Data from StockTwit Accounts
-    twit_data = importing_twitdata('topstockalerts', 'StockAuthority')
+    twit_data = importing_twitdata('StockAuthority')
     # Candidate Stocks Selected By Sentiment Analysis on Optimistic Twits
     candidate_stocks = twit_sentiment_analyzer(twit_data)
     # Opening Text File To Store Target Pricing
@@ -36,7 +36,7 @@ def buy():
                 # Save Target Price on a Separate Text File
                 f.write(ticker + " " + str(target_price) + "\n")
         # Eliminating Human Error and Probability Error in Collected Twit Data
-        except ValueError:
+        except IndexError or ValueError:
             pass
     f.close()
     return print('Buy Orders Sent')
@@ -50,12 +50,12 @@ def sell():
         df = pd.DataFrame({'ticker': f_content}).ticker.str.split(" ", expand=True)
         # Selling Positions that Does Not Have Pending Selling Orders
         for position in my_positions.difference(my_orders):
+            # Importing Position Data
+            position_api = alpaca_api.get_position(position)
+            price_change = float(position_api.unrealized_plpc)
+            current_price = float(position_api.current_price)
+            qty_bought = float(position_api.qty)
             try:
-                # Importing Position Data
-                position_api = alpaca_api.get_position(position)
-                price_change = float(position_api.unrealized_plpc)
-                current_price = float(position_api.current_price)
-                qty_bought = float(position_api.qty)
                 target_price = float(df.loc[df[0] == str(position), 1].values[0][:6])
                 # Sell on 7.5% Loss, Inverted Targeted Percent Loss, or Targeted Profit
                 if price_change <= -0.075 or current_price >= target_price:
@@ -66,14 +66,26 @@ def sell():
                         type='market',
                         time_in_force='gtc'
                     )
-            except IndexError:
-                pass
-            # Omitting Sold Position Data from 'target_price_list.txt'
-            f.seek(0, 0)
-            for line in f_content:
-                if str(position).lower() not in line.lower().split(" "):
-                    f.write(line)
-            f.truncate()
+                    # Omitting Sold Position Data from 'target_price_list.txt'
+                    f.seek(0, 0)
+                    for line in f_content:
+                        if str(position).lower() not in line.lower().split(" "):
+                            f.write(line)
+                    f.truncate()
+            except IndexError or ValueError:
+                alpaca_api.submit_order(
+                    symbol=position,
+                    qty=qty_bought,
+                    side='sell',
+                    type='market',
+                    time_in_force='gtc'
+                )
+                f.seek(0, 0)
+                for line in f_content:
+                    if str(position).lower() not in line.lower().split(" "):
+                        f.write(line)
+                f.truncate()
+
     # Closing Text File
     f.close()
     return print('Sell Orders Sent')

@@ -7,11 +7,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
 # Importing StockTwits Data from Automated Stock Alerting Accounts
-def importing_twitdata(account1, account2):
+def importing_twitdata(account):
     # Importing and Combining Data from 2 Accounts
-    r = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account1))
-    r2 = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account2))
-    twit_data = (r.text + r2.text).split('body')
+    r = requests.get(('https://api.stocktwits.com/api/2/streams/user/{}.json').format(account))
+    twit_data = r.text.split('body')
     # Handpicking Twits that Contain Ticker Names
     for line in twit_data:
         if '$' in line:
@@ -78,7 +77,6 @@ def random_forest_forecast(data):
     confidence_level = forest.score(X_test,y_test)
     prediction = round(forest.predict(np.array(X.head(20))).max() * confidence_level, 4)
     return prediction
-
 
 
 
