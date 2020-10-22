@@ -7,7 +7,7 @@ import sys
 
 def buy():
     # Importing Twit Data from StockTwit Accounts
-    twit_data = importing_twitdata('StockAuthority')
+    twit_data = importing_twitdata('StockAuthority', 'topstockalert')
     # Candidate Stocks Selected By Sentiment Analysis on Optimistic Twits
     candidate_stocks = twit_sentiment_analyzer(twit_data)
     # Opening Text File To Store Target Pricing
@@ -36,7 +36,7 @@ def buy():
                 # Save Target Price on a Separate Text File
                 f.write(ticker + " " + str(target_price) + "\n")
         # Eliminating Human Error and Probability Error in Collected Twit Data
-        except IndexError or ValueError:
+        except (IndexError or ValueError):
             pass
     f.close()
     return print('Buy Orders Sent')
@@ -72,7 +72,7 @@ def sell():
                         if str(position).lower() not in line.lower().split(" "):
                             f.write(line)
                     f.truncate()
-            except IndexError or ValueError:
+            except (IndexError or ValueError):
                 alpaca_api.submit_order(
                     symbol=position,
                     qty=qty_bought,
