@@ -69,12 +69,13 @@ def pulling_price_history(ticker):
 # Forecasting Price with Machine Learning Random Forest Regressor
 def random_forest_forecast(data):
     # Training the Model
+    # Predicting Closing Price
     X = data.drop(['close'], axis=1)
     y = data['close']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=101)
     forest = RandomForestRegressor(n_estimators=15)
     forest.fit(X_train, y_train)
-    # Substitute of Technical Analysis: (Target Price = Maximum Forecast Price of the Next 20 Business Days * Accuracy Score)
+    # Substitute of Technical Analysis: (Target Price = Maximum Forecast Price of the Next 20 Trading Days * Accuracy Score)
     confidence_level = forest.score(X_test,y_test)
     prediction = round(forest.predict(np.array(X.head(20))).max() * confidence_level, 4)
     return prediction
