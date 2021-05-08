@@ -1,7 +1,7 @@
 # Machine-Learning-Stock-Trading-Bot
 Objective: 
 Day trading bots are ubiquitous projects. 
-Swing trading bots are not as common, especially one that performs both fundamental and technical trading methodology with machine learning implementation. Staying true to its swing trading objective, the program is only designed to execute selling and buying once per day. 
+Swing trading bots are not as common, especially one that performs both fundamental and technical trading methodology with machine learning implementation. I wanted to automate my hobby of swing trading. Staying true to its swing trading objective, the program is only designed to execute selling and buying once per day. 
 
 Mechanics: 
 --> Implements sentiment analysis on equity related "tweets" to identify optimistically trending stocks
